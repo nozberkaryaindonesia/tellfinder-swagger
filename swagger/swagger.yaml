@@ -1,0 +1,699 @@
+---
+swagger: "2.0"
+info:
+  description: "TellFinder™ provides efficient visual analytics to support domain\
+    \ experts by automatically characterizing and organizing publicly available Internet\
+    \ data. TellFinder XHT applies these techniques to  online escort advertisements\
+    \ and reviews to combat human trafficking.\n<p>For more information, see <a href=\"\
+    https://www.tellfinder.com\">https://www.tellfinder.com</a>.\n<p>TellFinder Data\
+    \ XHT provides API access to search the XHT knowledge repository. The API uses\
+    \ a <a href=\"https://lucene.apache.org/\">Lucene-like</a> syntax for expressing\
+    \ queries. TellFinder queries tokens are space-delimited and can be submitted\
+    \ as:</p>\n<ul> <li>Single words (e.g. peaches, sexy, or independent)</li> <li>Quoted\
+    \ phrases (e.g. \"new in town\" or \"just visiting\")</li> <li>Advanced terms\
+    \ in the format key:\"value\" (e.g. phone:\"1234567\" or location:\"Toronto, ON,\
+    \ Canada\")</li> <li>Existence queries in the format key:&ask; (e.g. phone:&ask;\
+    \ returns all documents with phone numbers)</li> <li>Wildcard queries may be used\
+    \ in simple or advanced queries by adding &ask; where needed (e.g. phone:555&ask;\
+    \ returns all phone numbers starting with 555)</li> <li>Ranges (e.g. posttime:[epochstart,epochend]\
+    \ or height:[min,max] or weight:[,max] will return all weights less than or equal\
+    \ to the maximum)</li> <li>Exclusions can be performed by adding a ‘-‘ before\
+    \ the query value (e.g. -toronto phone:-5551112222)</li> <br>NOTE:  Range queries\
+    \ can only be executed on properties tagged RANGE.</li> </ul>\n<p>To be accepted\
+    \ as valid HTTP requests, all query strings must be URL encoded.</p> <p>The TellFinder\
+    \ API requires an API key in the HTTP Header <b>x-api-key</b>.  For example: <blockquote><p>curl\
+    \ -X GET https://api.tellfinder.com/properties -H \"x-api-key: 1234567890ABCDEFGHIJ\"\
+    </blockquote>"
+  version: "4.3.11"
+  title: "TellFinder Data XHT"
+  contact:
+    email: "support@tellfinder.com"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+host: "api.tellfinder.com"
+tags:
+- name: "developers"
+  description: "Operations available to TellFinder developers"
+schemes:
+- "https"
+paths:
+  /properties:
+    get:
+      tags:
+      - "developers"
+      summary: "Retrieve a list of all properties available for queries."
+      description: "Retrieve a list of all properties available for queries."
+      operationId: "getProperties"
+      produces:
+      - "application/json"
+      parameters: []
+      responses:
+        200:
+          description: "properties available for queries"
+          schema:
+            $ref: "#/definitions/PropertyDefinitions"
+      security:
+      - api_key: []
+  /overview:
+    get:
+      tags:
+      - "developers"
+      summary: "Retrieve a summary of the dataset including total documents, subtypes,\
+        \ and valid date ranges."
+      description: "Retrieve a summary of the dataset including total documents, subtypes,\
+        \ and valid date ranges."
+      operationId: "getOverview"
+      produces:
+      - "application/json"
+      parameters: []
+      responses:
+        200:
+          description: "properties available for queries"
+          schema:
+            $ref: "#/definitions/Overview"
+      security:
+      - api_key: []
+  /facets:
+    get:
+      tags:
+      - "developers"
+      summary: "Execute a facets search and retrieve a summary of the document matches."
+      description: "The facets endpoint allows you to retrieve a summary of your search\
+        \ results. It can, for example, help you answer questions such as “What are\
+        \ the most common locations in this search?” and “How often does this phone\
+        \ number post ads?”. <br><br> <h4><b>Examples:</b></h4>\n<p>Find a summary\
+        \ (facets) of phone numbers and email addresses in all documents that match\
+        \ the term “hello”:\n<blockquote><p>https://api.tellfinder.com/facets?q=hello&keys[]=phone&keys[]=email</blockquote>\n\
+        <p>Find all phone numbers that co-occur with the number (555) 555-2896:\n\
+        <blockquote><p>https://api.tellfinder.com/facets?q=phone:5555552896&keys[]=phone</blockquote>\n\
+        <p>Get a time histogram of the reviews posted in Toronto, ON, Canada:\n<blockquote><p>https://api.tellfinder.com/facets?q=location:%22Toronto%2C%20ON%2C%20Canada%22&f=type:Review&keys[]=posttime</blockquote> "
+      operationId: "getFacets"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "q"
+        in: "query"
+        description: "TellFinder query string that matches all documents"
+        required: true
+        type: "string"
+      - name: "keys"
+        in: "query"
+        description: "TellFinder key array for the property on which to get facets\
+          \ for.  Maximum of 5 permitted."
+        required: true
+        type: "string"
+      - name: "f"
+        in: "query"
+        description: "TellFinder query string that filters the documents"
+        required: false
+        type: "string"
+      - name: "e"
+        in: "query"
+        description: "Tellfinder query string that adds documents to the search results"
+        required: false
+        type: "string"
+      - name: "computeTimeseries"
+        in: "query"
+        description: "'true' if we wish to compute activity timeseries for each facet\
+          \ value"
+        required: false
+        type: "string"
+      responses:
+        200:
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Facets"
+      security:
+      - api_key: []
+  /locations:
+    get:
+      tags:
+      - "developers"
+      summary: "Execute a locations search and retrieve the contents of the matches."
+      description: "The locations endpoint allows you to get a full list of locations\
+        \ for every result in your search result set. Unlike the documents endpoint,\
+        \ which searches all documents, the locations endpoint only searches documents\
+        \ that contain a location. <br></br> <h4><b>Example:</b></h4> <p>Find all\
+        \ locations that have ads containing the phrase “hello world”: <blockquote><p>https://api.tellfinder.com/locations?q=%22hello%20world%22</blockquote> "
+      operationId: "getLocations"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "q"
+        in: "query"
+        description: "TellFinder query string that must match all documents with locations\
+          \ in the result set.\nFor example: \"hello world\" posttime:[2017-01-01,2017-01-31]\n\
+          Will match all documents that contain the phrase \"hello world\" posted\
+          \ in January 2017."
+        required: true
+        type: "string"
+      - name: "f"
+        in: "query"
+        description: "TellFinder query string that filters matched documents with\
+          \ locations"
+        required: false
+        type: "string"
+      - name: "e"
+        in: "query"
+        description: "TellFinder query string that adds documents with locations to\
+          \ the result set.\nFor example: \"hello world\" posttime:[2017-01-01,2017-01-31]\n\
+          Will add all documents with locations to the existing result set that match\
+          \ \"hello world\" OR were posted in January 2017."
+        required: false
+        type: "string"
+      responses:
+        200:
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Locations"
+      security:
+      - api_key: []
+  /documents:
+    get:
+      tags:
+      - "developers"
+      summary: "Execute a document search and retrieve the contents of the matches."
+      description: "The documents/search endpoint allows you to search/retrieve and\
+        \ page through documents in TellFinder. If you need the actual contents of\
+        \ the documents, this is the place to start. By default, the document search\
+        \ API returns 12 documents per page. <br><br> <h4><b>Examples:</b></h4> <p>Find\
+        \ all documents matching the phrase “New York City”:\n<blockquote><p>https://api.tellfinder.com/documents?q=%22New%20York%20City%22</blockquote>\n\
+        <p>Find all documents located in Toronto, ON, Canada that contain the word\
+        \ independent:\n<blockquote><p>https://api.tellfinder.com/documents?q=independent&f=location%3A%22Toronto%2C%20ON%2C%20Canada%22</blockquote>\n\
+        <p>Find all documents with the phone number (555) 555-2896:\n<blockquote><p>https://api.tellfinder.com/documents?q=phone:5555552896</blockquote>\
+        \ </p>"
+      operationId: "getDocuments"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "q"
+        in: "query"
+        description: "TellFinder query string that must match all documents in the\
+          \ result set. For example: <p> \"hello world\" posttime:[2017-01-01,2017-01-31]</p>\
+          \ <p>Will match all documents that contain the phrase \"hello world\" posted\
+          \ in January 2017.</p>"
+        required: true
+        type: "string"
+      - name: "f"
+        in: "query"
+        description: "TellFinder query string that filters matched documents"
+        required: false
+        type: "string"
+      - name: "e"
+        in: "query"
+        description: "TellFinder query string that adds documents to the result set.\
+          \ For example: <p>\"hello world\" posttime:[2017-01-01,2017-01-31] <p>Will\
+          \ add all documents to the existing result set that match \"hello world\"\
+          \ OR were posted in January 2017."
+        required: false
+        type: "string"
+      - name: "p"
+        in: "query"
+        description: "Page number (integer greater than 0)"
+        required: false
+        type: "string"
+      - name: "s"
+        in: "query"
+        description: "TellFinder property key on which to sort the results"
+        required: false
+        type: "string"
+      - name: "o"
+        in: "query"
+        description: "'asc' or 'desc' to sort ascending or descending"
+        required: false
+        type: "string"
+      responses:
+        200:
+          description: "search results"
+          schema:
+            $ref: "#/definitions/Documents"
+      security:
+      - api_key: []
+  /images:
+    get:
+      tags:
+      - "developers"
+      summary: "Execute a images search and retrieve the contents of the matches."
+      description: "The images endpoint allows you to get images as search results\
+        \ instead of documents. Unlike the documents endpoint, which searches all\
+        \ documents, the images endpoint only searches documents that contain an image.\
+        \ <br><br> <h4><b>Example:</b></h4> <p>Get the first page of images posted\
+        \ after January 2017 sorted by descending price:\n<blockquote><p>https://api.tellfinder.com/images?q=posttime:[2017-01-01,]&s=price&o=desc\
+        \ </blockquote> </p>"
+      operationId: "getImages"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "q"
+        in: "query"
+        description: "TellFinder query string that must match all documents with images\
+          \ in the result set.\nFor example: \"hello world\" posttime:[2017-01-01,2017-01-31]\n\
+          Will match all documents with images that contain the phrase \"hello world\"\
+          \ posted in January 2017."
+        required: true
+        type: "string"
+      - name: "f"
+        in: "query"
+        description: "TellFinder query string that filters matched documents with\
+          \ images"
+        required: false
+        type: "string"
+      - name: "e"
+        in: "query"
+        description: "TellFinder query string that adds documents with images to the\
+          \ result set.\nFor example: \"hello world\" posttime:[2017-01-01,2017-01-31]\n\
+          Will add all documents with images to the existing result set that match\
+          \ \"hello world\" OR were posted in January 2017."
+        required: false
+        type: "string"
+      responses:
+        200:
+          description: "search results"
+          schema:
+            $ref: "#/definitions/Images"
+      security:
+      - api_key: []
+  /image/{hash}:
+    get:
+      tags:
+      - "developers"
+      summary: "Retrieve an image by its hash."
+      description: "Retrieve an image by its hash. <br><br> <h4><b>Example:</b></h4>\
+        \ <p>Get the image with the hash 7C03BA080F6B96CEAC82E6AF28E7733D0EFC23EB\
+        \ and crop to 200 pixels:\n<blockquote><p>https://api.tellfinder.com/image/7C03BA080F6B96CEAC82E6AF28E7733D0EFC23EB?size=200\
+        \ </blockquote>"
+      operationId: "getImage"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "hash"
+        in: "path"
+        description: "The SHA-1 has of the image"
+        required: true
+        type: "string"
+      - name: "size"
+        in: "query"
+        description: "The size to crop the image to if a thumbnail is needed"
+        required: false
+        type: "integer"
+      responses:
+        200:
+          description: "the raw image bytes"
+      security:
+      - api_key: []
+  /histogram:
+    get:
+      tags:
+      - "developers"
+      summary: "Execute a histogram request and retrieve the contents of the matches."
+      description: "The histogram endpoint allows you to get bucketed document counts\
+        \ over time for a given date range and geographic region. It is useful for\
+        \ getting an overview of activity over time for a given region and time period.\
+        \ <br><br> <h4><b>Examples:</b></h4> <p>Get an hourly breakdown of Ads posted\
+        \ in the Philidelphia area for the first week of January 2017:\n<blockquote><p>https://api.tellfinder.com/histogram?startDate=2017-01-01&endDate=2017-01-07&interval=1h&subType=Ad&topLeft=40.17,-75.62&bottomRight=39.78,-74.89\
+        \ </blockquote> </p>"
+      operationId: "getHistogram"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "startDate"
+        in: "query"
+        description: "start date of range in the format yyyy-MM-dd or epoch timestamp\
+          \ in milliseconds.  eg/ 2017-01-01 or 1483228800000"
+        required: true
+        type: "string"
+      - name: "endDate"
+        in: "query"
+        description: "end date of range in the format yyyy-MM-dd or epoch timestamp\
+          \  in milliseconds.  eg/ 2017-01-01 or 1483228800000"
+        required: true
+        type: "string"
+      - name: "interval"
+        in: "query"
+        description: "interval of range (1d, 12h, 1M, etc)"
+        required: true
+        type: "string"
+      - name: "subType"
+        in: "query"
+        description: " document subtype to filter on"
+        required: false
+        type: "string"
+      - name: "topLeft"
+        in: "query"
+        description: "top-left lat/lng coordinate for geo bounds"
+        required: false
+        type: "string"
+      - name: "bottomRight"
+        in: "query"
+        description: "bottom-right lat/lng coordinate for geo bounds"
+        required: false
+        type: "string"
+      responses:
+        200:
+          description: "search results"
+          schema:
+            $ref: "#/definitions/Histogram"
+      security:
+      - api_key: []
+securityDefinitions:
+  api_key:
+    type: "apiKey"
+    name: "x-api-key"
+    in: "header"
+definitions:
+  Took:
+    type: "object"
+    required:
+    - "friendly"
+    - "millis"
+    properties:
+      millis:
+        type: "integer"
+        description: "Time in milliseconds to execute the query"
+      friendly:
+        type: "string"
+        description: "User-friendly version of the time to execute"
+  PropertyDefinitions:
+    type: "array"
+    items:
+      $ref: "#/definitions/PropertyDefinition"
+  Images:
+    type: "object"
+    required:
+    - "query"
+    properties:
+      query:
+        type: "string"
+        description: "the original query"
+      took:
+        $ref: "#/definitions/Took"
+      total:
+        type: "integer"
+        description: "Total number of documents matching the query"
+      images:
+        type: "array"
+        items:
+          $ref: "#/definitions/Image"
+  Image:
+    type: "object"
+    required:
+    - "id"
+    properties:
+      id:
+        type: "string"
+        description: "A unique identifier for the image"
+      originalLocation:
+        type: "string"
+        description: "The URL from which the image was scraped. Should not be used\
+          \ by the consumer in an image tag."
+      hash:
+        type: "string"
+        description: "The SHA1 hash of the image"
+      width:
+        type: "integer"
+        description: "The width of the image in pixels"
+      height:
+        type: "string"
+        description: "The height of the image in pixels"
+      url:
+        type: "string"
+        description: "The URL for the image that should be used by the consumer"
+  Documents:
+    type: "object"
+    required:
+    - "query"
+    properties:
+      query:
+        type: "string"
+        description: "the original query"
+      took:
+        $ref: "#/definitions/Took"
+      total:
+        type: "integer"
+        description: "Total number of documents matching the query"
+      documents:
+        type: "array"
+        items:
+          $ref: "#/definitions/Document"
+  Document:
+    type: "object"
+    required:
+    - "id"
+    properties:
+      id:
+        type: "string"
+        description: "Unique ID of the ad"
+      images:
+        type: "array"
+        items:
+          $ref: "#/definitions/Image"
+      propertyList:
+        type: "array"
+        items:
+          $ref: "#/definitions/Property"
+      highlights:
+        type: "string"
+        description: "Object showing where the search results match in the title and\
+          \ body"
+      body:
+        type: "string"
+        description: "body of the page"
+      title:
+        type: "string"
+        description: "title of the page"
+      rank:
+        type: "string"
+        description: "order in the search results"
+      subtype:
+        type: "string"
+        description: "The subtype of the document"
+  Locations:
+    type: "object"
+    required:
+    - "query"
+    properties:
+      query:
+        type: "string"
+        description: "The original query"
+      took:
+        $ref: "#/definitions/Took"
+      total:
+        type: "integer"
+        description: "Total number of documents matching the query"
+      locations:
+        type: "array"
+        items:
+          $ref: "#/definitions/Location"
+  Facets:
+    type: "object"
+    required:
+    - "facets"
+    properties:
+      took:
+        $ref: "#/definitions/Took"
+      total:
+        type: "integer"
+        description: "Total number of documents matching the query"
+      facets:
+        type: "array"
+        description: "List of facet results"
+        items:
+          $ref: "#/definitions/Facet"
+      expansionResults:
+        type: "array"
+        description: "List of search result hits that match each term provided as\
+          \ an expansion"
+  Overview:
+    type: "object"
+    properties:
+      minDate:
+        type: "string"
+        description: "The date of the first document in the dataset"
+      maxDate:
+        type: "string"
+        description: "The date of the newest document in the dataset"
+      totalDocuments:
+        type: "integer"
+        description: "Total number of documents in the dataset"
+      documentSubtype:
+        type: "array"
+        description: "Array of valid document subtypes"
+        items:
+          type: "string"
+          description: "valid document sub-type"
+  PropertyDefinition:
+    type: "object"
+    required:
+    - "key"
+    properties:
+      key:
+        type: "string"
+        description: "TellFinder property key"
+      tags:
+        type: "array"
+        description: "Array of PropertyTags that describe how this property should\
+          \ be used within TellFinder"
+        items:
+          type: "string"
+      friendlyName:
+        type: "string"
+        description: "User-friendly string for this property"
+      groupFriendlyName:
+        type: "string"
+        description: "User-friendly pluralized name for this property"
+      description:
+        type: "string"
+        description: "Description of the property"
+      example:
+        type: "string"
+        description: "Example of the property"
+  Facet:
+    type: "object"
+    required:
+    - "key"
+    properties:
+      key:
+        type: "string"
+        description: "Property key for this facet value, or posttime (for ranges)"
+      friendlyName:
+        type: "string"
+        description: "Display name for this facet group"
+      values:
+        type: "array"
+        description: "Value of the property (i.e., a phone number/location/etc.),\
+          \ or Date bucket (for ranges)"
+        items:
+          $ref: "#/definitions/FacetValue"
+      count:
+        type: "integer"
+        description: "The total number of unique values in the search results (STRING\
+          \ facets only)"
+      otherDocCount:
+        type: "integer"
+        description: "The number of documents with values not contained in the 'values'\
+          \ array  (STRING facets only)"
+      metrics:
+        $ref: "#/definitions/Metrics"
+  FacetValue:
+    type: "object"
+    required:
+    - "key"
+    properties:
+      key:
+        type: "string"
+        description: "Property key for this facet value"
+      value:
+        type: "string"
+        description: "Value of the property (i.e., a phone number/location/etc.),\
+          \ or Date bucket (for ranges)"
+      count:
+        type: "integer"
+        description: "Number of search results that have this phone number/location/etc,\
+          \ or Number of matches in this bucket (for ranges)"
+      selected:
+        type: "integer"
+        description: "The number of matches in the filtered 'f' query"
+      timeseries:
+        type: "array"
+        description: "Array of values over time for the occurence of this facet value\
+          \ (STRING facets only)"
+      selectedTimeseries:
+        type: "array"
+        description: "Array of values over time for the occurence of this facet value\
+          \ also matching the filtered value (STRING facets only)"
+  Metrics:
+    type: "object"
+    properties:
+      min:
+        type: "number"
+        description: "The minimum bucket value"
+      max:
+        type: "number"
+        description: "The maxumum bucket value"
+      avg:
+        type: "number"
+        description: "The average bucket value.  Null for `DATE` properties"
+      selectedMin:
+        type: "number"
+        description: "The minimum bucket value for the 'f' query"
+      selectedMax:
+        type: "number"
+        description: "The maximum bucket value for the 'f' query"
+      selectedAvg:
+        type: "number"
+        description: "The maximum bucket value for the 'f' query"
+    description: "Metrics for RANGE facets"
+  Property:
+    type: "object"
+    required:
+    - "key"
+    properties:
+      key:
+        type: "string"
+        description: "TellFinder property key"
+      value:
+        type: "string"
+        description: "Value of the property"
+      friendlyName:
+        type: "string"
+        description: "Display string for the property"
+      propertyTags:
+        type: "array"
+        description: "Tags associated with the given property"
+        items:
+          type: "string"
+  Location:
+    type: "object"
+    required:
+    - "label"
+    properties:
+      label:
+        type: "string"
+        description: "Name of the location"
+      count:
+        type: "string"
+        description: "Number of matches at this location"
+      lat:
+        type: "string"
+        description: "Latitude of the location"
+      long:
+        type: "string"
+        description: "Longitude of the location"
+  Histogram:
+    type: "object"
+    properties:
+      interval:
+        type: "string"
+        description: "The provided interval"
+      startDate:
+        type: "string"
+        description: "The provided start date"
+      endDate:
+        type: "string"
+        description: "The provided end date"
+      took:
+        type: "integer"
+        description: "Time taken in milliseconds"
+      total:
+        type: "integer"
+        description: "Total number of documents matching"
+      values:
+        type: "array"
+        items:
+          $ref: "#/definitions/HistogramValue"
+  HistogramValue:
+    type: "object"
+    properties:
+      value:
+        type: "string"
+        description: "The date bucket"
+      count:
+        type: "integer"
+        description: "Number of documents in this bucket"
+      mean:
+        type: "number"
+        description: "The rolling average of bucket counts"
+      standardDev:
+        type: "number"
+        description: "The rolling standard deviation of bucket counts"
